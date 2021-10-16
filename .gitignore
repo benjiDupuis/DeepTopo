@@ -1,0 +1,4 @@
+# cache
+\.pytest_cache
+\topoptim\.__pycache__
+\test\.__pycache__

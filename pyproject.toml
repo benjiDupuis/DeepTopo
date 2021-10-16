@@ -5,7 +5,11 @@ description = "\"Implementation of DNN-based topology optimisation\""
 authors = ["benjiDupuis <benjamin.dupuis@polytechnique.edu>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.10"
+torch = "^1.9.1"
+tqdm = "^4.62.3"
+scipy = "^1.7.1"
+cvxopt = "^1.2.7"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"
