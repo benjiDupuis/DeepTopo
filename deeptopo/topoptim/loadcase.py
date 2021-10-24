@@ -9,7 +9,7 @@ class LoadCase(object):
 
     def __init__(self, shape: Tuple[int]):
 
-        self.shape = (shape[0] - 1, shape[1] - 1)
+        self.shape = (shape[0] + 1, shape[1] + 1)
         self.fixed = np.zeros((self.shape[0], self.shape[1], 2), dtype=np.bool8)
         self.forces = np.zeros((self.shape[0], self.shape[1], 2))
 
@@ -55,12 +55,6 @@ class LoadCase(object):
         fixed_list.append(2*indices + 1)
 
         return f, np.concatenate(fixed_list)
-
-
-'''
-Idée: Loadcase est créé à partir d'un Topopt2D puis est passé 
-en argument de optimize
-'''
 
 
 class MichellStructure(LoadCase):

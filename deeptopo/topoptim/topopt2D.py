@@ -1,9 +1,9 @@
 """
 Implementation of 2D topology optimization using SIMP method
-Freely inspired by ...
-pass ft=2 to remove filtering. With ft=0 or ft=1, it can be used without neural networks as a classical SIMP implementation
+Freely inspired by...
+pass ft=2 to remove filtering. With ft=0 or ft=1,
+it can be used without neural networks as a classical SIMP implementation
 """
-
 import numpy as np
 import cvxopt
 import cvxopt.cholmod
@@ -11,8 +11,8 @@ from scipy.sparse import coo_matrix
 from tqdm import tqdm
 
 
-from topoptim.topopt_utils import lk, deleterowcol
-from topoptim.loadcase import LoadCase
+from deeptopo.topoptim.topopt_utils import lk, deleterowcol
+from deeptopo.topoptim.loadcase import LoadCase
 
 
 class Topopt2D(object):
@@ -85,9 +85,9 @@ class Topopt2D(object):
                 ll1 = int(np.maximum(j-(np.ceil(rmin)-1), 0))
                 ll2 = int(np.minimum(j+np.ceil(rmin), nely))
                 for k in range(kk1, kk2):
-                    for l in range(ll1, ll2):
-                        col = k*nely+l
-                        fac = rmin-np.sqrt(((i-k)*(i-k)+(j-l)*(j-l)))
+                    for ll in range(ll1, ll2):
+                        col = k*nely+ll
+                        fac = rmin-np.sqrt(((i-k)*(i-k)+(j-ll)*(j-ll)))
                         iH[cc] = row
                         jH[cc] = col
                         sH[cc] = np.maximum(0.0, fac)
