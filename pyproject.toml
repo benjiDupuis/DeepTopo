@@ -12,6 +12,7 @@ scipy = "^1.7.1"
 cvxopt = "^1.2.7"
 pydantic = "^1.8.2"
 opencv-python = "^4.5.4"
+einops = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"

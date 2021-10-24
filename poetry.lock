@@ -73,6 +73,14 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "einops"
+version = "0.3.2"
+description = "A new flavour of deep learning operations"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "fancycompleter"
 version = "0.9.1"
 description = "colorful TAB completion for Python prompt"
@@ -518,7 +526,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"
-content-hash = "0a84ab26bd4825792d076ce0616e30ba85f47a3a927a0cdce9d4dd947aa8b03d"
+content-hash = "d67a7f9e8216e37b172b6e869c9dca43c75fc09eb13bc25f4de6504bf8855c4b"
 
 [metadata.files]
 appnope = [
@@ -572,6 +580,10 @@ cvxopt = [
 decorator = [
     {file = "decorator-5.1.0-py3-none-any.whl", hash = "sha256:7b12e7c3c6ab203a29e157335e9122cb03de9ab7264b137594103fd4a683b374"},
     {file = "decorator-5.1.0.tar.gz", hash = "sha256:e59913af105b9860aa2c8d3272d9de5a56a4e608db9a2f167a8480b323d529a7"},
+]
+einops = [
+    {file = "einops-0.3.2-py3-none-any.whl", hash = "sha256:285f3c75620897acb8b5580170c88121f010c77ce130bc7b9f220179009dafe0"},
+    {file = "einops-0.3.2.tar.gz", hash = "sha256:5200e413539f0377f4177ef00dc019968f4177c49b1db3e836c7883df2a5fe2e"},
 ]
 fancycompleter = [
     {file = "fancycompleter-0.9.1-py3-none-any.whl", hash = "sha256:dd076bca7d9d524cc7f25ec8f35ef95388ffef9ef46def4d3d25e9b044ad7080"},
