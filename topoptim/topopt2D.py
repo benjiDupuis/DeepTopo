@@ -6,30 +6,32 @@ pass ft=2 to remove filtering. With ft=0 or ft=1, it can be used without neural 
 
 import numpy as np
 import cvxopt
+import cvxopt.cholmod
 from scipy.sparse import coo_matrix
-from typing import Tuple
+from tqdm import tqdm
 
 
 from topoptim.topopt_utils import lk, deleterowcol
+from topoptim.loadcase import LoadCase
 
 
-class Topopt2D:
+class Topopt2D(object):
 
     gradient: np.ndarray = None
     vol: float = None
     compliance: float = None
     KE: np.ndarray = lk()
     rmin: float = 5.4  # Filtering radius, if filtering is used
-    fixed: np.ndarray
-    free: np.ndarray
+    g: int
 
-    def __init__(self, shape: Tuple[int], volfrac: float, penal: float = 3., method: str = "OC", ft: int = 0):
+    def __init__(self, load: LoadCase, volfrac: float,
+                 penal: float = 3., method: str = "OC", ft: int = 0):
 
         assert 0. <= volfrac and volfrac <= 1., "Volume fraction should be in [0,1]"
         assert ft in [0, 1, 2], "Unknown filtering method"
         assert method in ["OC", "lagrangian", None], "Unknown optimization method"
 
-        self.shape = shape
+        self.shape = (load.shape[0] - 1, load.shape[1] - 1)
         self.volfrac = volfrac
         self.penal = penal
         self.method = method
@@ -37,16 +39,17 @@ class Topopt2D:
         self.Emin = 1.e-9
         self.Emax = 1.
         self.learning_rate = 1.e-2
-        ndof = 2*(1+shape[0])*(1+shape[1])  # Degrees of freedom
-        nele = shape[0]*shape[1]
-        self.f = np.zeros((ndof, 1))
+        ndof = 2*(1+self.shape[0])*(1+self.shape[1])  # Degrees of freedom
+        nele = self.shape[0]*self.shape[1]
         self.dc = np.ones(nele)
         self.ce = np.ones(nele)
         self.dv = np.ones(nele)
         self.u = np.zeros((ndof, 1))
-        self.xold = np.zeros(nele)
-        self.iK, self.jK, self.edofMat, self.H, self.Hs = Topopt2D.construct_matrix(
-            self.shape, self.rmin)
+        self.iK, self.jK, self.edofMat, self.H, self.Hs = \
+            Topopt2D.construct_matrix(self.shape, self.rmin)
+        self.f, self.fixed = load()
+        dofs = np.arange(ndof)
+        self.free = np.setdiff1d(dofs, self.fixed)
 
     def __str__(self):
         return "SIMP topology optimization using" + str(self.method)
@@ -95,38 +98,8 @@ class Topopt2D:
 
         return iK, jK, edofMat, H, Hs
 
-    # TODO: écrire une classe loadcase
-
-    # bc should be an array of shape (1+nelx)*(1+nely)
-    def boundaries(self, bc, dof):
-        (nelx, nely) = self.shape
-        ndof = 2*(1+nelx)*(1+nely)
-        dofs = np.arange(ndof)
-        (tabx, taby) = np.where(bc == 1)
-        indices = taby + (1+nely)*tabx
-        fixed_list = [self.fixed.copy()]
-        if dof[0]:
-            fixed_list.append(2*indices)
-        if dof[1]:
-            fixed_list.append(2*indices + 1)
-        self.fixed = np.concatenate(fixed_list)
-        self.free = np.setdiff1d(dofs, self.fixed)
-
-    # array should be an array of shape (1+nelx)*(1+nely)*2
-    def forces(self, array):
-        (nelx, nely) = self.shape
-        ndof = 2*(1+nelx)*(1+nely)
-        self.f = np.zeros((ndof, 1))
-        for i in range(1+nelx):
-            for j in range(1+nely):
-                if (array[i, j, 0] != 0) or (array[i, j, 1] != 0):
-                    print("Ajout d'une force en : ", i, j)
-                    idx = i*(1+nely) + j
-                    self.f[2*idx, 0] = array[i, j, 0]
-                    self.f[2*idx + 1, 0] = array[i, j, 1]
-
     # Optimality criteria method
-    def OC(self, x, dc, dv, g):
+    def __OC(self, x, dc, dv, g):
         (nelx, nely) = self.shape
         l1 = 1.e-9
         l2 = 1.e9
@@ -146,7 +119,7 @@ class Topopt2D:
         return xnew
 
     # Apply density or sensitivity filtering if ft=0 or ft=1
-    def filtering(self, x):
+    def __filtering(self, x):
         (nelx, nely) = self.shape
         nele = nelx*nely
         xPhys = np.zeros(nele)
@@ -204,15 +177,16 @@ class Topopt2D:
         # Volume
         vol = np.sum(xPhys)
         self.vol = vol
-        self.xold = x.copy()
+        xold = x.copy()
 
         # Optimization step, either with OC or None (In case of neural parameterization)
         assert self.method in [
-            "OC", None], "Unknown optimization method, possibilities are OC or None (in case of neural parameterization)"
+            "OC", None], "Unknown optimization method,\
+                 possibilities are OC or None (in case of neural parameterization)"
         if self.method == "OC":
-            x[:] = self.OC(x, dc, dv, self.g)
+            x[:] = self.__OC(x, dc, dv, self.g)
 
-        change = np.linalg.norm(x.reshape(nelx*nely, 1)-self.xold.reshape(nelx*nely, 1), np.inf)
+        change = np.linalg.norm(x.reshape(nelx*nely, 1)-xold.reshape(nelx*nely, 1), np.inf)
 
         return x, change
 
@@ -220,24 +194,26 @@ class Topopt2D:
         if loop == 0:
             xPhys = x.copy()
         else:
-            xPhys = self.filtering(x)
-        return self.__step_class(loop, xPhys, x, self.xold, self.ce, self.dc, self.dv, self.u)
+            xPhys = self.__filtering(x)
+        return self.__step_class(xPhys, x, self.ce, self.dc, self.dv, self.u)
 
     # return the final density field
-    def optimization(self, iter_max, display=True):
+    # TODO: ce, dc, dv, ... doivent etre défini au début de _call__
+    # et ne pas en faire des attributs
+    def __call__(self, iter_max: int, display: bool = True) -> np.ndarray:
 
-        self.g = 0
         compliance_tab = []
         (nelx, nely) = self.shape
         nele = nelx*nely
-        x = self.volfrac * np.ones(nelx*nely, dtype=np.float)
+        x = self.volfrac * np.ones(nelx*nely, dtype=np.float64)
+        self.g = 0
 
-        for k in range(iter_max):
-            x[:], ch = self.step(k, x)
+        for k in tqdm(range(iter_max)):
+            x[:], _ = self.step(k, x)
             compliance_tab.append(self.compliance)
             if display or (k == iter_max - 1):
                 print("Iteration : ", k, "  Compliance : ", round(
                     self.compliance, 2), "   Volume : ", round(self.vol/nele, 2))
-        xPhys = self.filtering(x)
+        xPhys = self.__filtering(x)
 
         return xPhys.reshape(nelx, nely).T, compliance_tab
