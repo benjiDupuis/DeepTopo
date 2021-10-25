@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import List
 
 import numpy as np
 import torch
@@ -46,8 +46,8 @@ class FCNN:
 
         self.__init_weights()
 
-    def __call__(self):
-        x = self.embedding().type(torch.FloatTensor)
+    def __call__(self, shape):
+        x = self.embedding(shape).type(torch.FloatTensor)
         return self.forward(x)
 
     def forward(self, x):
