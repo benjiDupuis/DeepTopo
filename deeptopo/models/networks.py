@@ -20,14 +20,15 @@ class BiasLayer(nn.Module):
         return x + self.beta*self.weight
 
 
-class FCNN:
+class FCNN(nn.Module):
 
     def __init__(self, embedding: Embedding, inter_layers: List[int],
-                 beta: float = 0.2, omega: float = 1., activation=torch.sigmoid):
+                 beta: float = 0.2, omega: float = 1., activation=torch.relu):
         '''
         inter_layers: intermediary layers size
         (input is embedding size and output is 1)
         '''
+        super(FCNN, self).__init__()
         self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         self.beta = beta
         self.omega = omega
@@ -47,7 +48,10 @@ class FCNN:
         self.__init_weights()
 
     def __call__(self, shape):
-        x = self.embedding(shape).type(torch.FloatTensor)
+        if self.embedding is not None:
+            x = self.embedding(shape).type(torch.FloatTensor)
+        else:
+            x = Embedding.make_grid(shape)
         return self.forward(x)
 
     def forward(self, x):

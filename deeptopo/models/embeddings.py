@@ -42,7 +42,7 @@ class GaussianEmbedding(Embedding):
 
     @torch.no_grad()
     def varphi(self, x: torch.Tensor) -> torch.Tensor:
-        return np.sqrt(2.)*torch.sin(torch.mm(self.grid, self.w0) + np.pi/4.)
+        return np.sqrt(2.)*torch.sin(torch.mm(x, self.w0) + np.pi/4.)
 
 
 # class TorusEmbedding(Embedding):

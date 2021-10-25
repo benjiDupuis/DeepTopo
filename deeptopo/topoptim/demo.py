@@ -4,8 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
-from topoptim.loadcase import MichellStructure
-from topoptim.topopt2D import Topopt2D
+from deeptopo.topoptim.loadcase import MichellStructure
+from deeptopo.topoptim.topopt2D import Topopt2D
 
 
 def main(iter: int = 50, output_dir="results"):
