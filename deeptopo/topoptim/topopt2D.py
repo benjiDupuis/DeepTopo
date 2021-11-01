@@ -10,7 +10,6 @@ import cvxopt.cholmod
 from scipy.sparse import coo_matrix
 from tqdm import tqdm
 
-
 from deeptopo.topoptim.topopt_utils import lk, deleterowcol
 from deeptopo.topoptim.loadcase import LoadCase
 

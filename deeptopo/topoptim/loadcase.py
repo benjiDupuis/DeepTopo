@@ -62,5 +62,4 @@ class MichellStructure(LoadCase):
     def __init__(self, shape: Tuple[int]):
         super(MichellStructure, self).__init__(shape)
         self.add_force((self.shape[0] - 1, self.shape[1]//2), np.array([0., -1.]))
-        self.add_fixed_point((0, self.shape[1]//4))
-        self.add_fixed_point((0, 3*self.shape[1]//4))
+        self.fixed[0, (self.shape[1]//4):(3*self.shape[1]//4), :] = True

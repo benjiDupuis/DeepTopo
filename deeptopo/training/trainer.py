@@ -90,11 +90,13 @@ class DeepTopo(Topopt2D):
 
         return x.clamp(0., 1.).cpu().detach().numpy().reshape(self.shape[0], self.shape[1]).T
 
-    # @torch.no_grad()
-    # def up_sampling(self, up_sampling_factor: float):
+    @torch.no_grad()
+    def up_sampling(self, up_sampling_factor: float):
 
-    #     finer_embedded_input = self.embedding(self.shape, up_sampling_factor*self.grid_size)
+        new_shape = (int(self.shape[0]*up_sampling_factor),
+                     int(self.shape[1]*up_sampling_factor))
 
-    #     up_sampled_field = self.net()
+        finer_embedded_input = self.embedding(new_shape, self.grid_size/up_sampling_factor)
+        up_sampled_field = self.net(finer_embedded_input).clamp(0., 1.).cpu().data.numpy()
 
-    #     # TODO: end this method
+        return up_sampled_field.reshape(new_shape[0], new_shape[1]).T
