@@ -7,7 +7,7 @@ import numpy as np
 from deeptopo.training.trainer import DeepTopo
 from deeptopo.models.embeddings import GaussianEmbedding
 from deeptopo.models.networks import FCNN
-from deeptopo.topoptim.loadcase import MichellStructure
+from deeptopo.topoptim.loadcase_zoo import MichellStructure
 from deeptopo.models.activations import normalized_relu
 
 

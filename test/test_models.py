@@ -1,7 +1,7 @@
 from deeptopo.models.embeddings import GaussianEmbedding
 from deeptopo.models.networks import FCNN
 from deeptopo.training.trainer import DeepTopo
-from deeptopo.topoptim.loadcase import MichellStructure
+from deeptopo.topoptim.loadcase_zoo import MichellStructure
 
 
 def test_gaussian_embedding():

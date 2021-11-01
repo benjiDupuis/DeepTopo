@@ -4,7 +4,7 @@ import cv2
 import fire
 import numpy as np
 
-from deeptopo.topoptim.loadcase import MichellStructure
+from deeptopo.topoptim.loadcase_zoo import MichellStructure
 from deeptopo.topoptim.topopt2D import Topopt2D
 
 

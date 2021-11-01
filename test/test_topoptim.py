@@ -1,5 +1,5 @@
 from deeptopo.topoptim.topopt2D import Topopt2D
-from deeptopo.topoptim.loadcase import MichellStructure
+from deeptopo.topoptim.loadcase_zoo import MichellStructure
 
 
 def test_topopt2D():
