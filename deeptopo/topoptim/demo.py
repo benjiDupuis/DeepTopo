@@ -1,7 +1,7 @@
-import fire
-import cv2
 from pathlib import Path
 
+import cv2
+import fire
 import numpy as np
 
 from deeptopo.topoptim.loadcase import MichellStructure

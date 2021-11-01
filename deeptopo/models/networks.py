@@ -4,8 +4,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from deeptopo.models.embeddings import Embedding
-
 
 # Bias term of the Linear layers in the NTK parameterization
 class BiasLayer(nn.Module):
@@ -22,8 +20,8 @@ class BiasLayer(nn.Module):
 
 class FCNN(nn.Module):
 
-    def __init__(self, embedding: Embedding, inter_layers: List[int],
-                 beta: float = 0.2, omega: float = 1., activation=torch.relu):
+    def __init__(self, inter_layers: List[int], input_size: int = 4,
+                 beta: float = 0.2, activation=torch.relu):
         '''
         inter_layers: intermediary layers size
         (input is embedding size and output is 1)
@@ -31,13 +29,26 @@ class FCNN(nn.Module):
         super(FCNN, self).__init__()
         self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         self.beta = beta
-        self.omega = omega
-        self.embedding = embedding
-        self.layers = [self.embedding.size] + inter_layers + [1]
+        self.input_size = input_size
+        self.inter_layers = inter_layers
+        self.layers = [self.input_size] + inter_layers + [1]
         self.L = len(self.layers) - 1
+        self.act = activation
+
+        self.init_layers(self.input_size)
+
+    def init_layers(self, size):
+        """
+        This method can be used to change input size
+        in case of different embedding
+        while preserving the remaining of the architecture
+        """
+
+        self.input_size = size
+        self.layers = [self.input_size] + self.inter_layers + [1]
+
         self.bias_modules = nn.ModuleList()
         self.lin_modules = nn.ModuleList()
-        self.act = activation
 
         for k in range(0, self.L - 1):
             self.lin_modules.append(nn.Linear(self.layers[k], self.layers[k+1], bias=False))
@@ -46,13 +57,6 @@ class FCNN(nn.Module):
         self.bias_modules.append(BiasLayer(self.layers[self.L], self.beta))
 
         self.__init_weights()
-
-    def __call__(self, shape):
-        if self.embedding is not None:
-            x = self.embedding(shape).type(torch.FloatTensor)
-        else:
-            x = Embedding.make_grid(shape)
-        return self.forward(x)
 
     def forward(self, x):
 

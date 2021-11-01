@@ -10,6 +10,8 @@ See pyproject.toml to install it with poetry.
 
 You can also pip install the requirements.
 
+Other possibility: create a virtual environement and `pip install`
+
 
 ## Topology optimization
 
