@@ -58,7 +58,7 @@ class FCNN(nn.Module):
 
         self.__init_weights()
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
 
         with torch.no_grad():
             if x.ndim == 1:
