@@ -4,7 +4,7 @@ This is the code related to our Neurips publication:
 
 [DNN-based topology optimization: spatial invariance and neural tangent kernel](https://arxiv.org/abs/2106.05710)
 
-![Algorithm scheme](schema_algo.png)
+![Algorithm scheme](figure_algorithm.png)
 
 ## Installation
 
