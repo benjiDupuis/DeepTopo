@@ -18,7 +18,7 @@ class Embedding2D:
         x, y = torch.meshgrid([torch.arange(shape[0]),
                                torch.arange(shape[1])])
         grid = torch.stack((x, y)).type(torch.FloatTensor)
-        grid = rearrange(grid, "a b c -> c b a")
+        grid = rearrange(grid, "a b c -> b c a")
         grid = rearrange(grid, "h w d -> (h w) d")
         grid.to(device)
         return dr*grid
