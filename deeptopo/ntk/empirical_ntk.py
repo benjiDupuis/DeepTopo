@@ -20,7 +20,7 @@ def empirical_ntk_1D(batch_input: torch.Tensor, net: nn.Module) -> torch.Tensor:
     gradient_list = []
     for b in tqdm(range(batch_input.shape[0])):
         net.zero_grad()
-        batch_output[b].backward(retain_graph = True)
+        batch_output[b].backward(retain_graph=True)
         gradient = torch.cat([p.grad.flatten() for p in net.parameters()])
         gradient_list.append(gradient)
 
