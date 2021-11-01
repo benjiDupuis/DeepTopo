@@ -5,14 +5,21 @@ description = "\"Implementation of DNN-based topology optimisation\""
 authors = ["benjiDupuis <benjamin.dupuis@polytechnique.edu>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.10"
+torch = "^1.9.1"
+tqdm = "^4.62.3"
+scipy = "^1.7.1"
+cvxopt = "^1.2.7"
+pydantic = "^1.8.2"
+opencv-python = "^4.5.4"
+einops = "^0.3.2"
+fire = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"
 pytest = "^6.2.4"
 autopep8 = "^1.5.7"
 pdbpp = "^0.10.2"
-fire = "^0.4.0"
 ipython = "^7.28.0"
 
 [build-system]
