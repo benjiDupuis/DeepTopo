@@ -13,9 +13,9 @@ from deeptopo.models.activations import normalized_relu
 
 def main(iter: int = 200, output_dir="results",
          up_sampling_factor: float = 4.):
-    '''
+    """
     Example of DNN-based topology optimization
-    '''
+    """
     output_path = Path(output_dir) / "michell_structure.png"
 
     loadcase = MichellStructure((100, 50))

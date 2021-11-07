@@ -132,4 +132,4 @@ dmypy.json
 .pyre/
 
 # Images in results folder
-results/
+results/*png
