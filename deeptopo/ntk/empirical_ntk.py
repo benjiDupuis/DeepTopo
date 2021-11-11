@@ -1,6 +1,10 @@
+from typing import Optional, Tuple
+
 import torch
 import torch.nn as nn
 from tqdm import tqdm
+
+from deeptopo.models.embeddings import Embedding2D
 
 
 def empirical_ntk(batch_input: torch.Tensor, net: nn.Module) -> torch.Tensor:
@@ -62,3 +66,24 @@ def empirical_NTK_one_line(batch_input: torch.Tensor, net: nn.Module, index: int
 
         return torch.einsum('ij, jk->ik', gradient_tensor[index].unsqueeze(0),
                             gradient_tensor.T)
+
+
+def one_line_ntk_with_embedding(net: nn.Module,
+                                shape: Tuple[int],
+                                embedding: Optional[Embedding2D] = None,
+                                index: Optional[int] = None):
+    """
+    Compute one line of the NTK of embedding + net 
+    with respect to index
+    """
+    if embedding is None:
+        batch_input = Embedding2D.make_grid(shape)
+    else:
+        batch_input = embedding(shape)
+
+    index = shape[1]*(1 + shape[0])//2 if index is None else index
+
+    ntk = empirical_NTK_one_line(batch_input, net, index)
+    ntk = ntk[0].reshape(shape[0], shape[1]).cpu().detach().data.numpy()
+
+    return ntk
