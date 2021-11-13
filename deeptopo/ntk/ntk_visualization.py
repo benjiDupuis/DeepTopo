@@ -31,4 +31,5 @@ def visualize_ntk(net: nn.Module,
     ntk = 255 - (255*ntk).astype(np.uint8)
 
     output_path = Path(output_dir) / "empirical_ntk.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     cv2.imwrite(str(output_path), ntk)

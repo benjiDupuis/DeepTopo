@@ -28,6 +28,7 @@ def main(iter: int = 200, output_dir="results",
     cv2.imwrite(str(output_path), 255 - (255*field).astype(np.uint8))
 
     output_path = Path(output_dir) / "michell_structure_up_sampled.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     cv2.imwrite(str(output_path),
                 255 - 255*optimizer.up_sampling(up_sampling_factor).astype(np.uint8))
 

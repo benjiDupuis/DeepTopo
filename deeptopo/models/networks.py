@@ -20,22 +20,31 @@ class BiasLayer(nn.Module):
 
 class FCNN(nn.Module):
 
-    def __init__(self, inter_layers: List[int], input_size: int = 4,
+    input_size: int
+    inter_layers: List[int]
+
+    def __init__(self, inter_layers: List[int] = [100], input_size: int = 4,
                  beta: float = 0.2, activation=torch.relu):
         '''
         inter_layers: intermediary layers size
         (input is embedding size and output is 1)
         '''
+
         super(FCNN, self).__init__()
         self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
         self.beta = beta
         self.input_size = input_size
         self.inter_layers = inter_layers
-        self.layers = [self.input_size] + inter_layers + [1]
-        self.L = len(self.layers) - 1
         self.act = activation
-
         self.init_layers(self.input_size)
+
+    @property
+    def L(self):
+        return 1 + len(self.inter_layers)
+
+    @property
+    def layers(self):
+        return [self.input_size] + self.inter_layers + [1]
 
     def init_layers(self, size):
         """
@@ -45,12 +54,11 @@ class FCNN(nn.Module):
         """
 
         self.input_size = size
-        self.layers = [self.input_size] + self.inter_layers + [1]
 
         self.bias_modules = nn.ModuleList()
         self.lin_modules = nn.ModuleList()
 
-        for k in range(0, self.L - 1):
+        for k in range(self.L - 1):
             self.lin_modules.append(nn.Linear(self.layers[k], self.layers[k+1], bias=False))
             self.bias_modules.append(BiasLayer(self.layers[k+1], self.beta))
         self.lin_modules.append(nn.Linear(self.layers[self.L - 1], self.layers[self.L], bias=False))
