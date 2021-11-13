@@ -1,4 +1,5 @@
 import torch
+from deeptopo.models.activations import NormalizedReLu
 
 from deeptopo.ntk.empirical_ntk import empirical_ntk, empirical_NTK_one_line
 from deeptopo.models.networks import FCNN
@@ -12,7 +13,7 @@ def test_empirical_ntk():
     device = torch.device(DEVICE)
 
     batch_input = torch.rand(3, 2, device=device, dtype=torch.float)
-    net = FCNN([10], 2)
+    net = FCNN([10], 2, activation=NormalizedReLu())
     net.to(device)
     ntk = empirical_ntk(batch_input, net)
 
@@ -26,7 +27,7 @@ def test_empirical_one_line_ntk():
     device = torch.device(DEVICE)
 
     batch_input = torch.rand(3, 2, device=device, dtype=torch.float)
-    net = FCNN([10], 2)
+    net = FCNN([10], 2, activation=NormalizedReLu())
     net.to(device)
     one_line_ntk = empirical_NTK_one_line(batch_input, net, 0)
 

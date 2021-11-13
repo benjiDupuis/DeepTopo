@@ -14,7 +14,7 @@ from deeptopo.models.activations import NormalizedActivation
 class TheoreticalNTK():
     """
     Implementation of the theoretical limiting NTK as described in the paper \n
-    This class is made to be applicable with embeddings 
+    This class is made to be applicable with embeddings
     and networks defined in this repository
     """
 

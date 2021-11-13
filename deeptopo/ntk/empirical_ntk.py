@@ -9,7 +9,7 @@ from deeptopo.models.embeddings import Embedding2D
 
 def empirical_ntk(batch_input: torch.Tensor, net: nn.Module) -> torch.Tensor:
     """
-    :param input_batch: batch of shape (B, I) where B is the 
+    :param input_batch: batch of shape (B, I) where B is the
     number of inputs points and I is the input shape to the network \n
     :param net: nn.Module, output shape of net is supposed to be 1 here \n
     :output: empirical NTK Gram matrix of shape I x I
@@ -73,7 +73,7 @@ def one_line_ntk_with_embedding(net: nn.Module,
                                 embedding: Optional[Embedding2D] = None,
                                 index: Optional[int] = None):
     """
-    Compute one line of the NTK of embedding + net 
+    Compute one line of the NTK of embedding + net
     with respect to index
     """
     if embedding is None:

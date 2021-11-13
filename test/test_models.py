@@ -1,3 +1,4 @@
+from deeptopo.models.activations import NormalizedReLu
 from deeptopo.models.embeddings import GaussianEmbedding
 from deeptopo.models.networks import FCNN
 from deeptopo.training.trainer import DeepTopo
@@ -26,5 +27,5 @@ def test_deeptopo():
 
     _ = DeepTopo(MichellStructure(shape),
                  GaussianEmbedding(10),
-                 FCNN([10, 10]),
+                 FCNN([10, 10], activation=NormalizedReLu()),
                  0.4)
