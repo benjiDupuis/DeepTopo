@@ -3,6 +3,7 @@ name = "deeptopo"
 version = "0.1.0"
 description = "\"Implementation of DNN-based topology optimisation\""
 authors = ["benjiDupuis <benjamin.dupuis@polytechnique.edu>"]
+packages = [{ include = "deeptopo" }]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.10"
