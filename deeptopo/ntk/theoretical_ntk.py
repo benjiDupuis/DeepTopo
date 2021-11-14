@@ -56,7 +56,7 @@ class TheoreticalNTK():
 
         index = shape[1]*(1 + shape[0])//2 if index is None else index
 
-        grid = Embedding2D.make_grid(shape)
+        grid = Embedding2D.make_grid(shape, dr)
         base_point = grid[index]
         base_point_grid = torch.stack([base_point for _ in range(grid.shape[0])])
 

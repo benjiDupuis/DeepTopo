@@ -1,6 +1,6 @@
 import torch
-from deeptopo.models.activations import NormalizedReLu
 
+from deeptopo.models.activations import NormalizedReLu
 from deeptopo.ntk.empirical_ntk import empirical_ntk, empirical_NTK_one_line
 from deeptopo.models.networks import FCNN
 

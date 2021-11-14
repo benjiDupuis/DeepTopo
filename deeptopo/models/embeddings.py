@@ -67,17 +67,19 @@ class TorusEmbedding(Embedding2D):
                  shape: Optional[Tuple[int]] = None):
         self.r = r
         self.size = 4
-        self.delta = delta
+        self.arg_delta = delta
         self.shape = shape
 
     @property
-    def default_delta(s: Optional[Tuple[int]] = None) -> float:
-        if s is None:
+    def delta(self) -> float:
+        if self.arg_delta is not None:
+            return self.arg_delta
+        if self.shape is None:
             print("WARNING: This is a torus embedding but neither delta \
                 not shape have been defined, delta has been set to 1 by default")
             return 1.
         else:
-            return np.pi/(2.*max(s[0], s[1]))
+            return np.pi/(2.*max(self.shape[0], self.shape[1]))
 
     @torch.no_grad()
     def varphi(self, x: torch.Tensor) -> torch.Tensor:
@@ -89,8 +91,7 @@ class TorusEmbedding(Embedding2D):
                                  torch.sin(self.delta*x[:, 3]).unsqueeze(1)], dim=1)
 
     @torch.no_grad()
-    def kernel(self, x: torch.Tensor, y: torch.Tensor, shape: Tuple[int])\
-            -> torch.Tensor():
+    def kernel(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor():
 
         assert x.ndim == 2, "x tensor should have two dimensions"
         assert y.ndim == 2, "y tensor should have two dimensions"
