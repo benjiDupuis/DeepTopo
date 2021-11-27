@@ -4,9 +4,13 @@ Freely inspired by...
 pass ft=2 to remove filtering. With ft=0 or ft=1,
 it can be used without neural networks as a classical SIMP implementation
 """
+import sys
+from pathlib import Path
+
 import numpy as np
 import cvxopt
 import cvxopt.cholmod
+from loguru import logger
 from scipy.sparse import coo_matrix
 from tqdm import tqdm
 
@@ -22,36 +26,54 @@ class Topopt2D(object):
     KE: np.ndarray = lk()
     rmin: float = 5.4  # Filtering radius, if filtering is used
     g: int
+    Emin: float = 1.e-9
+    Emax: float = 1.
 
     def __init__(self, load: LoadCase, volfrac: float,
                  penal: float = 3., method: str = "OC", ft: int = 0):
 
         assert 0. <= volfrac and volfrac <= 1., "Volume fraction should be in [0,1]"
-        assert ft in [0, 1, 2], "Unknown filtering method"
-        assert method in ["OC", "lagrangian", None], "Unknown optimization method"
+
+        if ft not in [0, 1, 2]:
+            raise NotImplementedError("Unknown filtering method")
+
+        if method not in ["OC", "lagrangian", None]:
+            raise NotImplementedError("Unknown optimization method")
 
         self.shape = (load.shape[0] - 1, load.shape[1] - 1)
         self.volfrac = volfrac
         self.penal = penal
         self.method = method
-        self.ft = ft  # Filtering mode. 0: sensitivity; 1: density; other: no filtering
-        self.Emin = 1.e-9
-        self.Emax = 1.
-        self.learning_rate = 1.e-2
-        ndof = 2*(1+self.shape[0])*(1+self.shape[1])  # Degrees of freedom
-        nele = self.shape[0]*self.shape[1]
-        self.dc = np.ones(nele)
-        self.ce = np.ones(nele)
-        self.dv = np.ones(nele)
-        self.u = np.zeros((ndof, 1))
+        self.ft = ft
+
+        # Initializing some arrays
+        self.dc = np.ones(self.nele)
+        self.ce = np.ones(self.nele)
+        self.dv = np.ones(self.nele)
+        self.u = np.zeros((self.ndof, 1))
         self.iK, self.jK, self.edofMat, self.H, self.Hs = \
             Topopt2D.construct_matrix(self.shape, self.rmin)
         self.f, self.fixed = load()
-        dofs = np.arange(ndof)
-        self.free = np.setdiff1d(dofs, self.fixed)
 
     def __str__(self):
         return "SIMP topology optimization using" + str(self.method)
+
+    @property
+    def nele(self):
+        return self.shape[0]*self.shape[1]
+
+    # Degrees of freedom
+    @property
+    def ndof(self) -> int:
+        return 2*(1+self.shape[0])*(1+self.shape[1])
+
+    @property
+    def dofs(self) -> np.ndarray:
+        return np.arange(self.ndof)
+
+    @property
+    def free(self) -> np.ndarray:
+        return np.setdiff1d(self.dofs, self.fixed)
 
     @staticmethod
     def construct_matrix(shape, rmin):
@@ -119,10 +141,8 @@ class Topopt2D(object):
 
     # Apply density or sensitivity filtering if ft=0 or ft=1
     def __filtering(self, x):
-        (nelx, nely) = self.shape
-        nele = nelx*nely
-        xPhys = np.zeros(nele)
-        # Density filtering
+        xPhys = np.zeros(self.nele)
+
         if self.ft == 0:
             xPhys[:] = x
         elif self.ft == 1:
@@ -132,6 +152,7 @@ class Topopt2D(object):
         return xPhys
 
     # Warning: this method does not apply filtering
+    @logger.catch
     def __step_class(self, xPhys, x, ce, dc, dv, u):
 
         assert self.free is not None, "No boundary conditions"
@@ -197,22 +218,21 @@ class Topopt2D(object):
         return self.__step_class(xPhys, x, self.ce, self.dc, self.dv, self.u)
 
     # return the final density field
-    # TODO: ce, dc, dv, ... doivent etre défini au début de _call__
-    # et ne pas en faire des attributs
     def __call__(self, iter_max: int, display: bool = True) -> np.ndarray:
+
+        logger.info(f"Optimization on {iter_max} iterations")
+        logger.add("logging/topoptim_{time}.log", format="{time} {message}", level="INFO")
 
         compliance_tab = []
         (nelx, nely) = self.shape
-        nele = nelx*nely
-        x = self.volfrac * np.ones(nelx*nely, dtype=np.float64)
+        x = self.volfrac * np.ones(self.nele, dtype=np.float64)
         self.g = 0
 
         for k in tqdm(range(iter_max)):
             x[:], _ = self.step(k, x)
             compliance_tab.append(self.compliance)
             if display or (k == iter_max - 1):
-                print("Iteration : ", k, "  Compliance : ", round(
-                    self.compliance, 2), "   Volume : ", round(self.vol/nele, 2))
+                logger.info(f"Iteration: {k}, Compliance: {self.compliance}")
         xPhys = self.__filtering(x)
 
         return xPhys.reshape(nelx, nely).T, compliance_tab

@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from loguru import logger
 from tqdm import tqdm
 
 from deeptopo.topoptim.topopt2D import Topopt2D
@@ -36,7 +37,10 @@ class DeepTopo(Topopt2D):
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.net.to(self.device)
 
+    @logger.catch
     def __call__(self, iter: int, display: bool = True, initial_field: bool = True):
+
+        logger.add("logging/deeptopo_{time}.log", format="{time} {message}", level="DEBUG")
 
         optimizer = torch.optim.Rprop(self.net.parameters(), lr=self.lr)
         target_volume = self.volfrac*self.shape[0]*self.shape[1]
@@ -83,10 +87,9 @@ class DeepTopo(Topopt2D):
                 optimizer.step()
 
             if display or (k == iter):
-                print("Iteration ", k, "  Compliance : ", round(self.compliance, 2),
-                      "  Biais Optimal : ", round(bias_opt, 2),
-                      "  Volume : ", round(x.sum().item()/(self.shape[0]*self.shape[1]), 2),
-                      "learning rate : ", self.lr)
+                logger.info(f"iteration {k}, compliance: {round(self.compliance, 2)}")
+                logger.debug(f"Optimal Bias: {bias_opt}")
+                logger.debug(f"Volume: {self.vol}")
 
         return x.clamp(0., 1.).cpu().detach().numpy().reshape(self.shape[0], self.shape[1]).T
 

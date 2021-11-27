@@ -8,7 +8,7 @@ from deeptopo.training.trainer import DeepTopo
 from deeptopo.models.embeddings import GaussianEmbedding
 from deeptopo.models.networks import FCNN
 from deeptopo.topoptim.loadcase_zoo import MichellStructure
-from deeptopo.models.activations import normalized_relu
+from deeptopo.models.activations import NormalizedReLu
 
 
 def main(iter: int = 200, output_dir="results",
@@ -21,7 +21,7 @@ def main(iter: int = 200, output_dir="results",
     loadcase = MichellStructure((100, 50))
     optimizer = DeepTopo(loadcase,
                          GaussianEmbedding(1000, ell=10.),
-                         FCNN([1000], beta=0.9, activation=normalized_relu),
+                         FCNN([1000], beta=0.9, activation=NormalizedReLu()),
                          0.4)
 
     field = optimizer(iter)

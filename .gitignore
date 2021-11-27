@@ -133,3 +133,9 @@ dmypy.json
 
 # Images in results folder
 results/*png
+
+# Loguru logging
+/logging
+
+# Not ready doc file
+/deeptopo/topoptim/topoptim.md
