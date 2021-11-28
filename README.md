@@ -12,7 +12,7 @@ See pyproject.toml to install it with poetry.
 
 You can also pip install the requirements.
 
-Other possibility: create a virtual environement and `pip install`
+Other possibility: create a virtual environement and install the repository with pip.
 
 
 ## Usage
@@ -43,10 +43,7 @@ If you find this work useful for your research, please consider citing:
 
 ## Acknowledgement
 
-The folder deeptopo/topoptim contains an implementation of the SIMP method, in
-
-to see a demo of this code, see the script deeptopo/topoptim/demo.py
-spired by the paper:
+The folder deeptopo/topoptim contains an implementation of the SIMP method, inspired by the paper:
 ```
 @article{topopt88,
 author = {Andreassen, Erik and Clausen, Anders and Schevenels, Mattias and Lazarov, Boyan and Sigmund, Ole},
@@ -59,3 +56,5 @@ journal = {Structural and Multidisciplinary Optimization},
 doi = {10.1007/s00158-010-0594-7}
 }
 ```
+
+to see a demo of this code, see the script deeptopo/topoptim/demo.py
